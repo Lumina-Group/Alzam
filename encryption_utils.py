@@ -1,29 +1,25 @@
 import logging
 import asyncio
-import base64 # 必要に応じて使用
+import base64
 from AQE.transport import SecureTransport
-from AQE.configuration import ConfigurationManager # 元のコードのクラスを想定
-
+from AQE.configuration import ConfigurationManager
+import create_shread_key #shared_key = asyncio.run(initialize_shared_key())でshared_key.binがない場合作成できる。
 logger = logging.getLogger(__name__)
 
 class ConfigurationManagerWithKey(ConfigurationManager):
     def get_shared_key(self) -> bytes | None:
         """設定ファイルから共有鍵を取得する"""
         try:
-            # [Security] セクションから shared_key を取得
-            key_str = self.config.get('Security', 'shared_key', fallback=None)
-            if key_str:
-                # 文字列をバイト列に変換 (UTF-8を仮定)
-                # ライブラリが特定のエンコーディングや形式を要求する場合はそれに合わせる
-                return key_str.encode('utf-8')
+            shared_key = ""
+            with open("shared_key.bin","rb") as target:
+              shared_key =  target.read()
+             
+            if shared_key:
+                return shared_key
 
-            # Base64エンコードされた鍵を試す場合
-            # key_b64 = self.config.get('Security', 'shared_key_base64', fallback=None)
-            # if key_b64:
-            #     return base64.b64decode(key_b64)
-
-            logger.error("Shared key ('shared_key' or 'shared_key_base64') not found in [Security] section of config.")
             return None
+        except FileNotFoundError as e:
+            print(f"Error File not found: {e}")
         except Exception as e:
             logger.error(f"Error reading shared key from config: {e}")
             return None
@@ -47,16 +43,14 @@ async def process_file(mode: str, input_path: str, output_path: str, config_file
 
         # ファイルをチャンクで処理
         chunk_size = 4096 # 4KBずつ処理 (メモリ使用量を抑える)
-        # 暗号化/復号化処理によっては、適切なチャンクサイズや
-        # 暗号化後のデータ形式（ヘッダー、パディング等）の考慮が必要な場合があります。
-        # AQE.SecureTransport の仕様を確認してください。
 
-        async with asyncio.TaskGroup() as tg: # Python 3.11+
-             # Python 3.10以前の場合は await asyncio.gather(...) などを使用
-             infile = await tg.create_task(aiofiles.open(input_path, mode='rb'))
-             outfile = await tg.create_task(aiofiles.open(output_path, mode='wb'))
 
-             while True:
+        infile, outfile = await asyncio.gather(
+    aiofiles.open(input_path, mode='rb'),
+    aiofiles.open(output_path, mode='wb')
+)
+
+        while True:
                  chunk = await infile.read(chunk_size)
                  if not chunk:
                      break
