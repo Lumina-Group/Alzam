@@ -3,7 +3,6 @@ import asyncio
 import base64
 from AQE.transport import SecureTransport
 from AQE.configuration import ConfigurationManager
-import create_shread_key #shared_key = asyncio.run(initialize_shared_key())でshared_key.binがない場合作成できる。
 logger = logging.getLogger(__name__)
 
 class ConfigurationManagerWithKey(ConfigurationManager):
