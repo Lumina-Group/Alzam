@@ -132,6 +132,11 @@
                         </div>
                     </div>
                 </div>
+                <div class="advanced-controls">
+                    <label class="toggle"><input type="checkbox" id="auto-calc" checked> AUTO CALC</label>
+                    <label class="toggle"><input type="checkbox" id="show-traj" checked> SHOW TRAJECTORY</label>
+                    <label class="toggle"><input type="checkbox" id="sound-on"> SOUND</label>
+                </div>
             </div>
         </div>
 
@@ -153,6 +158,22 @@
                 <span class="btn-icon">🔥</span>
                 FIRE
             </button>
+        </div>
+
+        <div class="aux-panel">
+            <button id="btn-pause" class="small-btn" onclick="togglePause()">PAUSE</button>
+            <button class="small-btn" onclick="resetScenario()">RESET</button>
+            <button class="small-btn" onclick="exportLog()">EXPORT LOG</button>
+        </div>
+
+        <div class="weapon-status">
+            <h3 class="log-title">WEAPON STATUS</h3>
+            <div class="status-grid">
+                <div class="status-item"><label>TURRET AZ:</label><span id="turret-az">0.0°</span></div>
+                <div class="status-item"><label>TURRET EL:</label><span id="turret-el">0.0°</span></div>
+                <div class="status-item"><label>RELOAD:</label><span id="reload-status">READY</span></div>
+                <div class="status-item"><label>ROUNDS:</label><span id="rounds-left">10</span></div>
+            </div>
         </div>
 
         <!-- System Log -->
