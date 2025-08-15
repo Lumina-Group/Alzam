@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Military FCS Simulator - Fire Control System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="fcs-container">
+        <!-- Header Section -->
+        <header class="fcs-header">
+            <div class="system-status">
+                <span class="status-indicator active"></span>
+                <span class="status-text">SYSTEM ONLINE</span>
+            </div>
+            <h1 class="system-title">FIRE CONTROL SYSTEM v2.1</h1>
+            <div class="system-time">
+                <span id="system-clock">00:00:00</span>
+                <span class="date" id="system-date">2024.01.01</span>
+            </div>
+        </header>
+
+        <!-- Main Control Panel -->
+        <div class="main-panel">
+            <!-- Radar Display -->
+            <div class="radar-section">
+                <div class="radar-container">
+                    <canvas id="radarCanvas" width="400" height="400"></canvas>
+                    <div class="radar-overlay">
+                        <div class="range-indicator">
+                            <span>RANGE: <span id="radar-range">10</span> km</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="radar-controls">
+                    <button class="control-btn" onclick="changeRadarRange(-5)">-</button>
+                    <span>RADAR RANGE</span>
+                    <button class="control-btn" onclick="changeRadarRange(5)">+</button>
+                </div>
+            </div>
+
+            <!-- Target Information Panel -->
+            <div class="target-info-section">
+                <h2 class="section-title">TARGET INFORMATION</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>TARGET ID:</label>
+                        <span id="target-id" class="info-value">---</span>
+                    </div>
+                    <div class="info-item">
+                        <label>DISTANCE:</label>
+                        <span id="target-distance" class="info-value">--- m</span>
+                    </div>
+                    <div class="info-item">
+                        <label>BEARING:</label>
+                        <span id="target-bearing" class="info-value">---°</span>
+                    </div>
+                    <div class="info-item">
+                        <label>ELEVATION:</label>
+                        <span id="target-elevation" class="info-value">---°</span>
+                    </div>
+                    <div class="info-item">
+                        <label>SPEED:</label>
+                        <span id="target-speed" class="info-value">--- m/s</span>
+                    </div>
+                    <div class="info-item">
+                        <label>TYPE:</label>
+                        <span id="target-type" class="info-value">---</span>
+                    </div>
+                </div>
+                
+                <!-- Threat Assessment -->
+                <div class="threat-assessment">
+                    <h3>THREAT LEVEL</h3>
+                    <div class="threat-meter">
+                        <div class="threat-level" id="threat-level"></div>
+                    </div>
+                    <span id="threat-text" class="threat-text">NO THREAT</span>
+                </div>
+            </div>
+
+            <!-- Ballistic Calculator -->
+            <div class="ballistic-section">
+                <h2 class="section-title">BALLISTIC SOLUTION</h2>
+                <div class="ballistic-grid">
+                    <div class="ballistic-item">
+                        <label>AMMUNITION:</label>
+                        <select id="ammo-type" class="control-select">
+                            <option value="apfsds">APFSDS</option>
+                            <option value="heat">HEAT</option>
+                            <option value="he">HE</option>
+                            <option value="smoke">SMOKE</option>
+                        </select>
+                    </div>
+                    <div class="ballistic-item">
+                        <label>WIND SPEED:</label>
+                        <input type="number" id="wind-speed" class="control-input" value="0" min="0" max="50">
+                        <span class="unit">m/s</span>
+                    </div>
+                    <div class="ballistic-item">
+                        <label>WIND DIR:</label>
+                        <input type="number" id="wind-dir" class="control-input" value="0" min="0" max="360">
+                        <span class="unit">°</span>
+                    </div>
+                    <div class="ballistic-item">
+                        <label>TEMPERATURE:</label>
+                        <input type="number" id="temperature" class="control-input" value="20" min="-40" max="50">
+                        <span class="unit">°C</span>
+                    </div>
+                </div>
+
+                <!-- Firing Solution -->
+                <div class="firing-solution">
+                    <h3>FIRING SOLUTION</h3>
+                    <div class="solution-grid">
+                        <div class="solution-item">
+                            <label>AZIMUTH:</label>
+                            <span id="solution-azimuth" class="solution-value">---°</span>
+                        </div>
+                        <div class="solution-item">
+                            <label>ELEVATION:</label>
+                            <span id="solution-elevation" class="solution-value">---°</span>
+                        </div>
+                        <div class="solution-item">
+                            <label>LEAD:</label>
+                            <span id="solution-lead" class="solution-value">--- mils</span>
+                        </div>
+                        <div class="solution-item">
+                            <label>TIME TO TARGET:</label>
+                            <span id="solution-time" class="solution-value">--- s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Control Buttons -->
+        <div class="control-panel">
+            <button class="action-btn acquire" onclick="acquireTarget()">
+                <span class="btn-icon">🎯</span>
+                ACQUIRE TARGET
+            </button>
+            <button class="action-btn calculate" onclick="calculateSolution()">
+                <span class="btn-icon">📊</span>
+                CALCULATE
+            </button>
+            <button class="action-btn lock" onclick="lockTarget()">
+                <span class="btn-icon">🔒</span>
+                LOCK TARGET
+            </button>
+            <button class="action-btn fire" onclick="fireWeapon()" disabled>
+                <span class="btn-icon">🔥</span>
+                FIRE
+            </button>
+        </div>
+
+        <!-- System Log -->
+        <div class="system-log">
+            <h3 class="log-title">SYSTEM LOG</h3>
+            <div class="log-content" id="system-log">
+                <div class="log-entry">[00:00:00] System initialized</div>
+                <div class="log-entry">[00:00:01] Radar online</div>
+                <div class="log-entry">[00:00:02] Fire control system ready</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
